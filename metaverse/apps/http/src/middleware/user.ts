@@ -10,7 +10,7 @@ export const userMiddleware = (req: Request, res: Response, next: NextFunction) 
         console.log(token)
 
     if (!token) {
-        res.status(403).json({message: "Unauthorized"})
+        res.status(403).json({message: "Unauthorized_2"})
         return
     }
 
@@ -19,7 +19,7 @@ export const userMiddleware = (req: Request, res: Response, next: NextFunction) 
         req.userId = decoded.userId
         next()
     } catch(e) {
-        res.status(401).json({message: "Unauthorized"})
+        res.status(401).json({message: "Unauthorized_2"})
         return
     }
 }

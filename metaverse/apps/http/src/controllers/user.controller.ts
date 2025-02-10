@@ -1,9 +1,7 @@
-// src/controllers/user.controller.ts
-
 import client from '@repo/db/client';
 import { Request, Response } from 'express';
 import { SigninSchema, SignupSchema, UpdateMetadataSchema } from '../@types/types';
-import { hash } from '../config/scrypt';
+import { compare, hash } from '../config/scrypt';
 
 export const signup = async (req: Request, res: Response): Promise<void> => {
   const parsedData = SignupSchema.safeParse(req.body);
@@ -60,15 +58,17 @@ export const signin = async (req: Request, res: Response): Promise<void> => {
       res.status(404).json({ message: 'User not found' });
       return;
     }
-
-    const isPasswordCorrect = await hash(password) === user.password;
+    const pas = await hash(password);
+    console.log(user.password);
+    console.log(pas);
+    const isPasswordCorrect = compare(password, user.password);
 
     if (!isPasswordCorrect) {
       res.status(401).json({ message: 'Incorrect password' });
       return;
     }
 
-    res.status(200).json({ token: user.id });
+    res.status(200).json({ user:user,token: user.id });
   } catch (error) {
     console.error('Error during signin:', error);
     res.status(500).json({ message: 'Internal Server Error' });

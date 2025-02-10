@@ -1,4 +1,4 @@
-// src/routes/admin.routes.ts
+
 import { Router } from 'express';
 import {
   createAvatar,
@@ -10,11 +10,9 @@ import { adminMiddleware } from '../middleware/admin';
 
 export const adminRouter = Router();
 
-// Apply admin middleware to all routes
-adminRouter.use(adminMiddleware);
 
-// Admin routes
-adminRouter.post('/element', createElement);
-adminRouter.put('/element/:elementId', updateElement);
-adminRouter.post('/avatar', createAvatar);
-adminRouter.post('/map', createMap);
+
+adminRouter.post('/element',adminMiddleware, createElement);
+adminRouter.put('/element/:elementId',adminMiddleware, updateElement);
+adminRouter.post('/avatar',adminMiddleware, createAvatar);
+adminRouter.post('/map',adminMiddleware, createMap);
