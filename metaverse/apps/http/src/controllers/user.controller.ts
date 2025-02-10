@@ -1,6 +1,6 @@
 import client from "@repo/db/client";
 import { Request, Response } from "express";
-import { SigninSchema, SignupSchema } from "../@types/types";
+import { SigninSchema, SignupSchema, UpdateMetadataSchema } from "../@types/types";
 import { hash } from "../config/scrypt";
 
 export const signup = async (req: Request, res: Response) => {
@@ -115,3 +115,50 @@ export const getAvatars = async (req: Request, res: Response) => {
     res.status(500).json({ error: 'Failed to fetch avatars' });
   }
 };
+
+export const metaDataUpdate = async (req: Request, res: Response) => {
+  const parsedData = UpdateMetadataSchema.safeParse(req.body)
+  if (!parsedData.success) {
+      console.log("parsed data incorrect")
+      res.status(400).json({message: "Validation failed"})
+      return
+  }
+  try {
+      await client.user.update({
+          where: {
+              id: req.userId
+          },
+          data: {
+              avatarId: parsedData.data.avatarId
+          }
+      })
+      res.json({message: "Metadata updated"})
+  } catch(e) {
+      console.log("error")
+      res.status(400).json({message: "Internal server error"})
+  }
+}
+
+export const bulkMetadataUpdate = async (req: Request, res: Response) => {
+  const userIdString = (req.query.ids ?? "[]") as string;
+    const userIds = (userIdString).slice(1, userIdString?.length - 1).split(",");
+    console.log(userIds)
+    const metadata = await client.user.findMany({
+        where: {
+            id: {
+                in: userIds
+            }
+        }, select: {
+            avatar: true,
+            id: true
+        }
+    })
+
+    res.json({
+        avatars: metadata.map((m:any) => ({
+            userId: m.id,
+            avatarId: m.avatar?.imageUrl
+        }))
+    })
+
+}
